@@ -14,9 +14,14 @@ org-jetbrains-kotlin-jvm = "1.9.10"
 dagger-hilt = "2.48"
 javax-inject = "1"
 
-
 # ktor core client
 ktor = "2.3.4"
+
+# kotlin coroutines
+kotlinx-coroutines-core = "1.7.1"
+kotlinx-coroutines-android = "1.7.1"
+
+
 
 
 [libraries]
@@ -43,6 +48,18 @@ hilt-compiler = { group = "com.google.dagger", name = "hilt-compiler", version.r
 # ktor client
 ktor-client-core = { group = "io.ktor", name = "ktor-client-core", version.ref = "ktor" }
 ktor-client-cio = { group = "io.ktor", name = "ktor-client-cio", version.ref = "ktor" }
+#implementation("io.ktor:ktor-client-resources:$ktor_version")
+ktor-client-resources = { group = "io.ktor", name = "ktor-client-resources", version.ref = "ktor" }
+#kotlinx.serialization
+ktor-client-serialization = { group = "io.ktor", name = "ktor-client-serialization", version.ref = "ktor" }
+# content negotation
+ktor-client-content-negotiation = { group = "io.ktor", name = "ktor-client-content-negotiation", version.ref = "ktor" }
+# implementation("io.ktor:ktor-serialization-kotlinx-json:$ktor_version"
+ktor-serialization-kotlinx-json = { group = "io.ktor", name = "ktor-serialization-kotlinx-json", version.ref = "ktor" }
+
+# kotlin coroutines
+kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinx-coroutines-core" }
+kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "kotlinx-coroutines-android" }
 
 
 [plugins]
@@ -53,4 +70,8 @@ org-jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "org
 # dagger hilt
 kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
 dagger-hilt = { id = "com.google.dagger.hilt.android", version.ref = "dagger-hilt" }
+androidLibrary = { id = "com.android.library", version.ref = "agp" }
+
+# kotlinx.serialization
+kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 

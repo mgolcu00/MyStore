@@ -7,5 +7,10 @@ plugins {
     // dagger hilt
     alias(libs.plugins.kotlin.kapt) apply false
     alias(libs.plugins.dagger.hilt) apply false
+    alias(libs.plugins.androidLibrary) apply false
+    // kotlinx serialization
+    alias(libs.plugins.kotlinx.serialization)
+
+
 }
 true // Needed to make the Suppress annotation work for the plugins block

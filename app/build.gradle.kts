@@ -6,6 +6,9 @@ plugins {
     // dagger hilt
     alias(libs.plugins.kotlin.kapt)
     alias(libs.plugins.dagger.hilt)
+
+    // kotlinx serialization
+    alias(libs.plugins.kotlinx.serialization)
 }
 
 android {
@@ -45,7 +48,7 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.4.3"
+        kotlinCompilerExtensionVersion = "1.5.3"
     }
     packaging {
         resources {

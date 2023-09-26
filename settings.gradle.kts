@@ -15,5 +15,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "MyStore"
 include(":app")
-include(":domain")
 include(":data")
