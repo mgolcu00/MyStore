@@ -1,4 +1,4 @@
-package com.mertgolcu.data.api.utils
+package com.mertgolcu.data.core.utils
 
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -8,10 +8,11 @@ import io.ktor.client.request.post
 import io.ktor.client.request.put
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.content.NullBody
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onEach
@@ -25,6 +26,9 @@ import kotlinx.coroutines.flow.onStart
 suspend inline fun <reified T> responseToResource(response: HttpResponse): Resource<T> {
     return when (response.status) {
         HttpStatusCode.OK -> {
+            if (response.bodyAsText() == "null") {
+                return Resource.Error("Response body is null or empty")
+            }
             val data = response.body<T>()
             Resource.Success(data)
         }
@@ -97,6 +101,7 @@ suspend inline fun <reified T> HttpClient.delete(
 ): Resource<T> {
     val uri = createUrl(url, params, query)
     val response = this.delete(uri)
+
     return responseToResource(response)
 }
 

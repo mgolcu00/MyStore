@@ -1,7 +1,8 @@
 package com.mertgolcu.data.repository.product
 
-import com.mertgolcu.data.model.response.ProductListResponse
+import com.mertgolcu.data.model.request.AddOrUpdateProductRequest
 import com.mertgolcu.data.model.response.ProductResponse
+import com.mertgolcu.data.model.utils.ProductSort
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -9,7 +10,10 @@ import kotlinx.coroutines.flow.Flow
  * @since 26.09.2023
  */
 interface IProductRepository {
-    suspend fun getAllProducts(): Flow<List<ProductResponse>>
+    suspend fun getAllProducts(
+        limit: Int? = null,
+        sort: String = ProductSort.ASC.value
+    ): Flow<List<ProductResponse>>
 
     suspend fun getSingleProduct(id: Int): Flow<ProductResponse>
 
@@ -17,9 +21,9 @@ interface IProductRepository {
 
     suspend fun getInCategory(category: String): Flow<List<ProductResponse>>
 
-    suspend fun addNewProduct(product: ProductResponse): Flow<ProductResponse>
+    suspend fun addNewProduct(product: AddOrUpdateProductRequest): Flow<ProductResponse>
 
-    suspend fun updateProduct(id: Int, product: ProductResponse): Flow<ProductResponse>
+    suspend fun updateProduct(id: Int, product: AddOrUpdateProductRequest): Flow<ProductResponse>
 
     suspend fun deleteProduct(id: Int): Flow<ProductResponse>
 

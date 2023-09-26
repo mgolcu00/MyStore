@@ -1,4 +1,4 @@
-package com.mertgolcu.data.api.utils
+package com.mertgolcu.data.core.utils
 
 /**
  * @author Mert Gölcü

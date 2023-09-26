@@ -1,13 +1,10 @@
 package com.mertgolcu.data.repository.product
 
-import com.mertgolcu.data.api.client.ApiProvider
-import com.mertgolcu.data.api.product.ProductApi
-import com.mertgolcu.data.api.utils.Resource
-import com.mertgolcu.data.api.utils.emitWithCatch
-import com.mertgolcu.data.model.response.ProductListResponse
+import com.mertgolcu.data.api.product.ProductServiceImpl
+import com.mertgolcu.data.core.utils.emitWithCatch
+import com.mertgolcu.data.model.request.AddOrUpdateProductRequest
 import com.mertgolcu.data.model.response.ProductResponse
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 
 /**
  * @author Mert Gölcü
@@ -15,28 +12,29 @@ import kotlinx.coroutines.flow.flow
  */
 
 class ProductRepositoryImpl(
-    private val productApi: ProductApi
+    private val productServiceImpl: ProductServiceImpl
 ) : IProductRepository {
-    override suspend fun getAllProducts(): Flow<List<ProductResponse>> =
-        emitWithCatch(productApi.getAllProducts())
+    override suspend fun getAllProducts(limit: Int?, sort: String): Flow<List<ProductResponse>> {
+        return emitWithCatch(productServiceImpl.getAllProducts(limit, sort))
+    }
 
     override suspend fun getSingleProduct(id: Int): Flow<ProductResponse> =
-        emitWithCatch(productApi.getSingleProduct(id))
+        emitWithCatch(productServiceImpl.getSingleProduct(id))
 
     override suspend fun getAllCategories(): Flow<List<String>> =
-        emitWithCatch(productApi.getAllCategories())
+        emitWithCatch(productServiceImpl.getAllCategories())
 
     override suspend fun getInCategory(category: String): Flow<List<ProductResponse>> =
-        emitWithCatch(productApi.getInCategory(category))
+        emitWithCatch(productServiceImpl.getInCategory(category))
 
-    override suspend fun addNewProduct(product: ProductResponse): Flow<ProductResponse> =
-        emitWithCatch(productApi.addNewProduct(product))
+    override suspend fun addNewProduct(product: AddOrUpdateProductRequest): Flow<ProductResponse> =
+        emitWithCatch(productServiceImpl.addNewProduct(product))
 
-    override suspend fun updateProduct(id: Int, product: ProductResponse): Flow<ProductResponse> =
-        emitWithCatch(productApi.updateProduct(id, product))
+    override suspend fun updateProduct(id: Int, product: AddOrUpdateProductRequest): Flow<ProductResponse> =
+        emitWithCatch(productServiceImpl.updateProduct(id, product))
 
     override suspend fun deleteProduct(id: Int): Flow<ProductResponse> =
-        emitWithCatch(productApi.deleteProduct(id))
+        emitWithCatch(productServiceImpl.deleteProduct(id))
 
 
 }

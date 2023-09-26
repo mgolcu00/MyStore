@@ -1,8 +1,8 @@
 package com.mertgolcu.data.test
 
-import com.mertgolcu.data.api.client.ApiProvider
-import com.mertgolcu.data.api.utils.Resource
-import com.mertgolcu.data.model.response.ProductResponse
+import com.mertgolcu.data.core.ApiProvider
+import com.mertgolcu.data.core.utils.Resource
+import com.mertgolcu.data.model.request.AddOrUpdateProductRequest
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.*
 
@@ -13,9 +13,9 @@ import org.junit.jupiter.api.Test
  * @since 26.09.2023
  */
 
-class ProductApiTest {
+class ProductServiceImplTest {
 
-    private val api = ApiProvider.productApi
+    private val api = ApiProvider.productService
 
     @Test
     fun getAllProducts() {
@@ -89,7 +89,7 @@ class ProductApiTest {
 
     @Test
     fun addNewProduct() {
-        val product = ProductResponse(
+        val product = AddOrUpdateProductRequest(
             title = "Example Product",
             price = 100.0,
             category = "electronics",
@@ -114,7 +114,7 @@ class ProductApiTest {
     @Test
     fun updateProduct() {
         val id = 1
-        val product = ProductResponse(
+        val product = AddOrUpdateProductRequest(
             title = "Example Product",
             price = 100.0,
             category = "electronics",

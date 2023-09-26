@@ -1,6 +1,7 @@
-package com.mertgolcu.data.api.client
+package com.mertgolcu.data.core
 
-import com.mertgolcu.data.api.product.ProductApi
+import com.mertgolcu.data.api.cart.CartServiceImpl
+import com.mertgolcu.data.api.product.ProductServiceImpl
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -16,8 +17,6 @@ import kotlinx.serialization.json.Json
  * @since 15.09.2023
  */
 object ApiProvider {
-
-    //  private val client = NetworkClient().getClient()
 
     private const val HOST = "fakestoreapi.com"
     private val PROTOCOL = URLProtocol.HTTPS
@@ -44,5 +43,7 @@ object ApiProvider {
         }
 
 
-    val productApi = ProductApi(client)
+    val productService = ProductServiceImpl(client)
+
+    val cartService = CartServiceImpl(client)
 }

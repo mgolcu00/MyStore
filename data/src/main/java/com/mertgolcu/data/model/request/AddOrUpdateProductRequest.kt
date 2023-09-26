@@ -1,5 +1,6 @@
-package com.mertgolcu.data.model.response
+package com.mertgolcu.data.model.request
 
+import com.mertgolcu.data.model.response.Rating
 import kotlinx.serialization.Serializable
 
 /**
@@ -7,7 +8,7 @@ import kotlinx.serialization.Serializable
  * @since 26.09.2023
  */
 @Serializable
-data class ProductResponse(
+data class AddOrUpdateProductRequest(
     val id: Int? = null,
     val title: String? = null,
     val price: Double? = null,
@@ -16,10 +17,3 @@ data class ProductResponse(
     val image: String? = null,
     val rating: Rating? = null
 )
-
-@Serializable
-data class Rating(
-    val rate:Double?=null,
-    val count:Int?=null
-)
-

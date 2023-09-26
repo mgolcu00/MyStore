@@ -1,10 +1,11 @@
 package com.mertgolcu.data.api.product
 
-import com.mertgolcu.data.api.utils.Resource
-import com.mertgolcu.data.api.utils.delete
-import com.mertgolcu.data.api.utils.get
-import com.mertgolcu.data.api.utils.post
-import com.mertgolcu.data.api.utils.put
+import com.mertgolcu.data.core.utils.Resource
+import com.mertgolcu.data.core.utils.delete
+import com.mertgolcu.data.core.utils.get
+import com.mertgolcu.data.core.utils.post
+import com.mertgolcu.data.core.utils.put
+import com.mertgolcu.data.model.request.AddOrUpdateProductRequest
 import com.mertgolcu.data.model.response.ProductResponse
 import io.ktor.client.HttpClient
 
@@ -14,9 +15,21 @@ import io.ktor.client.HttpClient
  */
 
 
-class ProductApi(private val client: HttpClient) : IProductApi {
-    override suspend fun getAllProducts(): Resource<List<ProductResponse>> =
-        client.get(url = "/products")
+class ProductServiceImpl(private val client: HttpClient) : IProductService {
+
+    override suspend fun getAllProducts(
+        limit: Int?,
+        sort: String?
+    ): Resource<List<ProductResponse>> {
+        val query = hashMapOf<String, String>()
+        limit?.let {
+            query["limit"] = it.toString()
+        }
+        sort?.let {
+            query["sort"] = it
+        }
+        return client.get(url = "/products", query = query)
+    }
 
     override suspend fun getSingleProduct(id: Int): Resource<ProductResponse> =
         client.get(url = "/products", params = listOf(id.toString()))
@@ -27,12 +40,12 @@ class ProductApi(private val client: HttpClient) : IProductApi {
     override suspend fun getInCategory(category: String): Resource<List<ProductResponse>> =
         client.get(url = "/products", query = mapOf("category" to category))
 
-    override suspend fun addNewProduct(product: ProductResponse): Resource<ProductResponse> =
+    override suspend fun addNewProduct(product: AddOrUpdateProductRequest): Resource<ProductResponse> =
         client.post(url = "/products", body = product)
 
     override suspend fun updateProduct(
         id: Int,
-        product: ProductResponse
+        product: AddOrUpdateProductRequest
     ): Resource<ProductResponse> =
         client.put(url = "/products", params = listOf(id.toString()), body = product)
 
