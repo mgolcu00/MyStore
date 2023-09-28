@@ -15,6 +15,8 @@ data class Task(
 ) {
     fun toggleCompleted() = copy(isCompleted = !isCompleted)
 
+    fun updateCompleted(newCompleted: Boolean) = copy(isCompleted = newCompleted)
+
     fun updateTitle(newTitle: String) = copy(title = newTitle)
 
     fun updateDescription(newDescription: String) = copy(description = newDescription)
