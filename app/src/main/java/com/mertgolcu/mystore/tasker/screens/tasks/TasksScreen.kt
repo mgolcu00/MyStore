@@ -6,15 +6,22 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -22,21 +29,26 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SheetState
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
+import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.ParagraphStyle
 import androidx.compose.ui.text.TextRange
@@ -44,7 +56,6 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import com.mertgolcu.mystore.tasker.domain.model.Task
 import kotlinx.coroutines.launch
 
@@ -59,13 +70,74 @@ fun TasksScreen() {
     val showAddTaskDialog = remember { mutableStateOf(false) }
     val taskListState = remember { mutableStateOf(tasks) }
     val showFloatingActionButton = remember { mutableStateOf(true) }
-    val sheetState = rememberModalBottomSheetState()
+    val sheetState = remember {
+        SheetState(
+            false,
+            initialValue = SheetValue.Hidden
+        )
+    }
     val scope = rememberCoroutineScope()
+    val bottomSheetScaffoldState = rememberBottomSheetScaffoldState(
+        bottomSheetState = SheetState(
+            false,
+            initialValue = SheetValue.PartiallyExpanded,
+        )
+    )
+    /*    BottomSheetScaffold(
+            scaffoldState = bottomSheetScaffoldState,
+            sheetPeekHeight = 64.dp,
+            sheetContent = {
+                Row(
+                    modifier = Modifier
+                        .background(
+                            color = MaterialTheme.colorScheme.surface
+                        )
+                        .fillMaxWidth(),
+                ) {
+                    ExpandedTaskRow(
+                        task = Task.create(title = ""),
+                        onDone = {
+                            taskListState.value = taskListState.value.toMutableList().apply {
+                                add(it)
+                            }
+
+                            scope.launch { bottomSheetScaffoldState.bottomSheetState.partialExpand() }
+                                .invokeOnCompletion {
+                                    if (!bottomSheetScaffoldState.bottomSheetState.isVisible) {
+                                        showAddTaskDialog.value = false
+                                    }
+                                }
+                        },
+                        onCancel = {
+                            scope.launch { bottomSheetScaffoldState.bottomSheetState.partialExpand() }
+                                .invokeOnCompletion {
+                                    if (!bottomSheetScaffoldState.bottomSheetState.isVisible) {
+                                        showAddTaskDialog.value = false
+                                    }
+                                }
+                        },
+                        focus = false
+                    )
+                }
+
+            }) { pv ->
+            TaskList(
+                modifier = Modifier.padding(pv),
+                tasks = taskListState.value,
+                expandListener = {
+                    showFloatingActionButton.value = !it
+                }
+            )
+        }*/
     Scaffold(
         floatingActionButton = {
             if (showFloatingActionButton.value && !sheetState.isVisible) {
                 FloatingActionButton(modifier = Modifier, onClick = {
-                    showAddTaskDialog.value = true
+                    scope.launch {
+                        sheetState.show()
+                    }.invokeOnCompletion {
+                        showAddTaskDialog.value = true
+                    }
                 }) {
                     Text(
                         modifier = Modifier.padding(8.dp), text = "+ Add Task"
@@ -74,13 +146,14 @@ fun TasksScreen() {
             }
         },
     ) { pv ->
-        if (showAddTaskDialog.value) {
+        if (sheetState.isVisible)
             ModalBottomSheet(
-                modifier = Modifier.offset(
-                    y = if (sheetState.isVisible) 0.dp else 200.dp
+                modifier = Modifier.imePadding().offset(
+
                 ),
                 onDismissRequest = {
                     showAddTaskDialog.value = false
+                    scope.launch { sheetState.hide() }
                 },
                 sheetState = sheetState,
             ) {
@@ -110,11 +183,14 @@ fun TasksScreen() {
                                     showAddTaskDialog.value = false
                                 }
                             }
-                        }
+                        },
+                        focus = true
                     )
+
                 }
+
             }
-        } else {
+        else
             TaskList(
                 modifier = Modifier.padding(pv),
                 tasks = taskListState.value,
@@ -122,7 +198,7 @@ fun TasksScreen() {
                     showFloatingActionButton.value = !it
                 }
             )
-        }
+
     }
 }
 
@@ -144,10 +220,10 @@ val tasks = listOf<Task>(
 fun TaskList(
     modifier: Modifier = Modifier,
     tasks: List<Task>,
-    expandListener: (Boolean) -> Unit = {}
+    expandListener: (Boolean) -> Unit = {},
 ) {
-    val tasksState = remember { mutableStateOf(tasks) }
-    var expandedIndexState = remember { mutableIntStateOf(-1) }
+    val tasksState = rememberSaveable { mutableStateOf(tasks) }
+    val expandedIndexState = remember { mutableIntStateOf(-1) }
     LazyColumn(
         modifier = modifier
     ) {
@@ -162,10 +238,10 @@ fun TaskList(
                 expanded = expandedIndexState.intValue == index,
                 onExpand = {
                     if (!it) {
-                        expandedIndexState.value = -1
+                        expandedIndexState.intValue = -1
                         expandListener(false)
                     } else {
-                        expandedIndexState.value = index
+                        expandedIndexState.intValue = index
                         expandListener(true)
                     }
                 },
@@ -237,7 +313,12 @@ fun CollapsedTaskTow(
 }
 
 @Composable
-fun ExpandedTaskRow(task: Task, onDone: (task: Task) -> Unit = {}, onCancel: () -> Unit = {}) {
+fun ExpandedTaskRow(
+    task: Task,
+    onDone: (task: Task) -> Unit = {},
+    onCancel: () -> Unit = {},
+    focus: Boolean = true
+) {
     var titleState = remember { mutableStateOf(TextFieldValue(task.title)) }
     var focusRequester = remember { FocusRequester() }
     var errorState = remember { mutableStateOf("") }
@@ -316,11 +397,13 @@ fun ExpandedTaskRow(task: Task, onDone: (task: Task) -> Unit = {}, onCancel: () 
                 }
             },
         )
-        LaunchedEffect(Unit) {
-            focusRequester.requestFocus()
-            titleState.value = titleState.value.copy(
-                selection = TextRange(titleState.value.text.length)
-            )
+        if (focus) {
+            LaunchedEffect(Unit) {
+                focusRequester.requestFocus()
+                titleState.value = titleState.value.copy(
+                    selection = TextRange(titleState.value.text.length)
+                )
+            }
         }
         Column(
             modifier = Modifier
@@ -332,6 +415,8 @@ fun ExpandedTaskRow(task: Task, onDone: (task: Task) -> Unit = {}, onCancel: () 
                     errorState.value = "Title can not be empty"
                 } else {
                     onDone(task.copy(title = titleState.value.text))
+                    focusRequester.freeFocus()
+                    titleState.value = titleState.value.copy("")
                 }
             }) {
                 Text(
@@ -342,6 +427,8 @@ fun ExpandedTaskRow(task: Task, onDone: (task: Task) -> Unit = {}, onCancel: () 
                 modifier = Modifier.wrapContentSize(),
                 onClick = {
                     onCancel()
+                    focusRequester.freeFocus()
+                    titleState.value = titleState.value.copy("")
                 },
                 contentPadding = PaddingValues(0.dp),
             ) {
