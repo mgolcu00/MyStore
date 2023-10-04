@@ -1,57 +1,30 @@
 package com.mertgolcu.mystore.tasker.screens.tasks
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.absoluteOffset
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.material3.BottomSheetDefaults
-import androidx.compose.material3.BottomSheetScaffold
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.Divider
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SheetState
-import androidx.compose.material3.SheetValue
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
-import androidx.compose.material3.rememberBottomSheetScaffoldState
-import androidx.compose.material3.rememberModalBottomSheetState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.ParagraphStyle
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -63,6 +36,41 @@ import kotlinx.coroutines.launch
  * @author mertgolcu
  * @since 27.09.2023
  */
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
+@Composable
+fun TasksScreen2() {
+    val showAddTaskDialog = remember { mutableStateOf(false) }
+    val taskListState = remember { mutableStateOf(tasks) }
+    val showFloatingActionButton = remember { mutableStateOf(true) }
+    val scope = rememberCoroutineScope()
+    var descState = remember { mutableStateOf(TextFieldValue("")) }
+    var descFocusRequester = remember { FocusRequester() }
+    var taskTextState = remember { mutableStateOf(TextFieldValue("")) }
+
+    TaskAddModal(taskTextState.value.text) { state, keyboardController, focusRequester ->
+        TaskList(modifier = Modifier,
+            tasks = taskListState.value,
+            expandListener = {it,text->
+                showFloatingActionButton.value = !it
+                scope.launch {
+                    state.bottomSheetState.expand()
+                    focusRequester.requestFocus()
+                    keyboardController.show()
+                    taskTextState.value = TextFieldValue(text)
+                }
+            },
+            onClickAdd = {
+                scope.launch {
+                    state.bottomSheetState.expand()
+                    focusRequester.requestFocus()
+                    keyboardController.show()
+                }
+            }
+        )
+    }
+
+}
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -72,71 +80,29 @@ fun TasksScreen() {
     val showFloatingActionButton = remember { mutableStateOf(true) }
     val sheetState = remember {
         SheetState(
-            false,
-            initialValue = SheetValue.Hidden
+            false, initialValue = SheetValue.Hidden
         )
     }
     val scope = rememberCoroutineScope()
+    var descState = remember { mutableStateOf(TextFieldValue("")) }
+    var descFocusRequester = remember { FocusRequester() }
     val bottomSheetScaffoldState = rememberBottomSheetScaffoldState(
         bottomSheetState = SheetState(
             false,
             initialValue = SheetValue.PartiallyExpanded,
         )
     )
-    /*    BottomSheetScaffold(
-            scaffoldState = bottomSheetScaffoldState,
-            sheetPeekHeight = 64.dp,
-            sheetContent = {
-                Row(
-                    modifier = Modifier
-                        .background(
-                            color = MaterialTheme.colorScheme.surface
-                        )
-                        .fillMaxWidth(),
-                ) {
-                    ExpandedTaskRow(
-                        task = Task.create(title = ""),
-                        onDone = {
-                            taskListState.value = taskListState.value.toMutableList().apply {
-                                add(it)
-                            }
-
-                            scope.launch { bottomSheetScaffoldState.bottomSheetState.partialExpand() }
-                                .invokeOnCompletion {
-                                    if (!bottomSheetScaffoldState.bottomSheetState.isVisible) {
-                                        showAddTaskDialog.value = false
-                                    }
-                                }
-                        },
-                        onCancel = {
-                            scope.launch { bottomSheetScaffoldState.bottomSheetState.partialExpand() }
-                                .invokeOnCompletion {
-                                    if (!bottomSheetScaffoldState.bottomSheetState.isVisible) {
-                                        showAddTaskDialog.value = false
-                                    }
-                                }
-                        },
-                        focus = false
-                    )
-                }
-
-            }) { pv ->
-            TaskList(
-                modifier = Modifier.padding(pv),
-                tasks = taskListState.value,
-                expandListener = {
-                    showFloatingActionButton.value = !it
-                }
-            )
-        }*/
     Scaffold(
         floatingActionButton = {
             if (showFloatingActionButton.value && !sheetState.isVisible) {
                 FloatingActionButton(modifier = Modifier, onClick = {
                     scope.launch {
-                        sheetState.show()
+
+
+                        sheetState.expand()
                     }.invokeOnCompletion {
                         showAddTaskDialog.value = true
+
                     }
                 }) {
                     Text(
@@ -146,58 +112,144 @@ fun TasksScreen() {
             }
         },
     ) { pv ->
-        if (sheetState.isVisible)
-            ModalBottomSheet(
-                modifier = Modifier.imePadding().offset(
+
+        if (sheetState.isVisible) ModalBottomSheet(
+            modifier = Modifier
+                .imePadding()
+                .offset(
 
                 ),
-                onDismissRequest = {
-                    showAddTaskDialog.value = false
-                    scope.launch { sheetState.hide() }
-                },
-                sheetState = sheetState,
+            onDismissRequest = {
+                showAddTaskDialog.value = false
+                scope.launch { sheetState.hide() }
+            },
+            sheetState = sheetState,
+        ) {
+            Row(
+                modifier = Modifier
+                    .background(
+                        color = MaterialTheme.colorScheme.surface
+                    )
+                    .fillMaxWidth(),
             ) {
-                Row(
-                    modifier = Modifier
-                        .background(
-                            color = MaterialTheme.colorScheme.surface
-                        )
-                        .fillMaxWidth(),
-                ) {
-                    ExpandedTaskRow(
-                        task = Task.create(title = ""),
-                        onDone = {
-                            taskListState.value = taskListState.value.toMutableList().apply {
-                                add(it)
-                            }
+                /*Column {
+                    Text(text = "Add New Task")
+                    ExpandedTaskRow(task = Task.create(title = ""), onDone = {
+                        taskListState.value = taskListState.value.toMutableList().apply {
+                            add(it)
+                        }
 
+                        scope.launch { sheetState.hide() }.invokeOnCompletion {
+                            if (!sheetState.isVisible) {
+                                showAddTaskDialog.value = false
+                            }
+                        }
+                    }, onCancel = {
+                        scope.launch { sheetState.hide() }.invokeOnCompletion {
+                            if (!sheetState.isVisible) {
+                                showAddTaskDialog.value = false
+                            }
+                        }
+                    }, focus = false
+                    )
+
+                    Box {
+                        IconButton(onClick = {
                             scope.launch { sheetState.hide() }.invokeOnCompletion {
                                 if (!sheetState.isVisible) {
                                     showAddTaskDialog.value = false
                                 }
                             }
-                        },
-                        onCancel = {
-                            scope.launch { sheetState.hide() }.invokeOnCompletion {
-                                if (!sheetState.isVisible) {
-                                    showAddTaskDialog.value = false
-                                }
+                        }) {
+                            Icon(
+                                modifier = Modifier.padding(8.dp),
+                                imageVector = Icons.Filled.Close,
+                                contentDescription = "Close"
+                            )
+                        }
+                    }
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp)
+                            .background(Color.Magenta)
+                    ) {
+                        OutlinedTextField(modifier = Modifier
+                            .fillMaxSize()
+                            .focusRequester(descFocusRequester),
+                            value = descState.value,
+                            onValueChange = {
+                                descState.value = it
+                            })
+                        LaunchedEffect(Unit) {
+                            descFocusRequester.requestFocus()
+                        }
+                    }
+                }*/
+                Column {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                    ) {
+                        Button(onClick = { /*TODO*/ }) {
+                            Text(text = "Save")
+                        }
+                        Button(onClick = { /*TODO*/ }) {
+                            Text(text = "Cancel")
+                        }
+                        Button(onClick = { /*TODO*/ }) {
+                            Text(text = "Delete")
+                        }
+                    }
+                    OutlinedTextField(modifier = Modifier
+                        .fillMaxSize(0.8f)
+                        .padding(16.dp)
+                        .focusRequester(descFocusRequester),
+                        value = descState.value,
+                        onValueChange = {
+                            // max lines
+                            if (it.text.count { char -> char == '\n' } > 3) {
+                                descState.value = descState.value.copy(
+                                    text = it.text.substring(0, it.text.lastIndexOf('\n')),
+                                    selection = TextRange(it.text.lastIndexOf('\n'))
+                                )
+                                return@OutlinedTextField
                             }
+                            if (it.text.length > 100) {
+                                descState.value = descState.value.copy(
+                                    text = it.text.substring(0, 100),
+                                    selection = TextRange(100)
+                                )
+                                return@OutlinedTextField
+                            }
+                            descState.value = it
                         },
-                        focus = true
+                        supportingText = {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Spacer(modifier = Modifier.padding(4.dp))
+                                Text(
+                                    modifier = Modifier.align(Alignment.CenterVertically),
+                                    text = "${descState.value.text.length}/100"
+                                )
+                            }
+                        }
                     )
 
                 }
-
             }
-        else
-            TaskList(
-                modifier = Modifier.padding(pv),
-                tasks = taskListState.value,
-                expandListener = {
-                    showFloatingActionButton.value = !it
-                }
-            )
+
+
+        }
+        else TaskList(modifier = Modifier.padding(pv),
+            tasks = taskListState.value,
+            expandListener = {it,text->
+                showFloatingActionButton.value = !it
+            })
 
     }
 }
@@ -220,7 +272,8 @@ val tasks = listOf<Task>(
 fun TaskList(
     modifier: Modifier = Modifier,
     tasks: List<Task>,
-    expandListener: (Boolean) -> Unit = {},
+    expandListener: (Boolean,String) -> Unit = {_,_->},
+    onClickAdd: () -> Unit = {}
 ) {
     val tasksState = rememberSaveable { mutableStateOf(tasks) }
     val expandedIndexState = remember { mutableIntStateOf(-1) }
@@ -236,13 +289,13 @@ fun TaskList(
                     }
                 },
                 expanded = expandedIndexState.intValue == index,
-                onExpand = {
+                onExpand = {it,title ->
                     if (!it) {
                         expandedIndexState.intValue = -1
-                        expandListener(false)
+                        expandListener(false,title)
                     } else {
                         expandedIndexState.intValue = index
-                        expandListener(true)
+                        expandListener(true,title)
                     }
                 },
             )
@@ -254,6 +307,11 @@ fun TaskList(
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f)
                 )
             } else {
+                TextButton(onClick = {
+                    onClickAdd()
+                }) {
+                    Text(text = "Add Task")
+                }
                 Spacer(modifier = Modifier.height(64.dp))
             }
         }
@@ -314,10 +372,7 @@ fun CollapsedTaskTow(
 
 @Composable
 fun ExpandedTaskRow(
-    task: Task,
-    onDone: (task: Task) -> Unit = {},
-    onCancel: () -> Unit = {},
-    focus: Boolean = true
+    task: Task, onDone: (task: Task) -> Unit = {}, onCancel: () -> Unit = {}, focus: Boolean = true
 ) {
     var titleState = remember { mutableStateOf(TextFieldValue(task.title)) }
     var focusRequester = remember { FocusRequester() }
@@ -448,18 +503,18 @@ fun SmartTaskRow(
     task: Task,
     onDone: (task: Task) -> Unit = {},
     expanded: Boolean = false,
-    onExpand: (Boolean) -> Unit = {},
+    onExpand: (Boolean,String) -> Unit = {_,_->},
 ) {
     if (expanded) {
         ExpandedTaskRow(task = task, onDone = {
             onDone(it)
-            onExpand(false)
+            onExpand(false,task.title)
         }, onCancel = {
-            onExpand(false)
+            onExpand(false,task.title)
         })
     } else {
         CollapsedTaskTow(task = task, onClick = {
-            onExpand(true)
+            onExpand(true,task.title)
         }, onCheckedChange = { task, isChecked ->
             onDone(task.updateCompleted(isChecked))
         })
@@ -467,9 +522,116 @@ fun SmartTaskRow(
 
 }
 
+
+@OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
+@Composable
+fun TaskBottomSheet(
+    onDismiss: () -> Unit,
+    onSaveTask: (String, String) -> Unit // Bu işlevi görevi kaydetmek için kullanabilirsiniz
+) {
+    var taskName by remember { mutableStateOf("") }
+    var selectedDate by remember { mutableStateOf("") }
+
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val density = LocalDensity.current.density
+
+    // Bottom Sheet'ın yüksekliği ve görünürlüğünü kontrol eder
+    val state = rememberModalBottomSheetState()
+
+    val coroutineScope = rememberCoroutineScope()
+
+    ModalBottomSheet(
+        sheetState = state,
+        onDismissRequest = {
+            onDismiss()
+        },
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            Text(
+                text = "Yeni Görev Ekle",
+                style = MaterialTheme.typography.headlineMedium,
+                color = MaterialTheme.colorScheme.primary
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+
+            BasicTextField(
+                value = taskName,
+                onValueChange = { taskName = it },
+                keyboardOptions = KeyboardOptions.Default.copy(
+                    imeAction = ImeAction.Done
+                ),
+                keyboardActions = KeyboardActions(onDone = {
+                    onSaveTask(taskName, selectedDate)
+                    coroutineScope.launch {
+                        state.hide()
+                    }
+                }),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp),
+                singleLine = true,
+                textStyle = MaterialTheme.typography.bodyMedium
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Tarih seçimi için bir DatePicker ekleyebilirsiniz
+            // selectedDate değişkenini güncellemeyi unutmayın
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Button(
+                    onClick = {
+                        onSaveTask(taskName, selectedDate)
+                        coroutineScope.launch {
+                            state.hide()
+                        }
+                    }, modifier = Modifier.weight(1f)
+                ) {
+                    Text(text = "Kaydet")
+                }
+
+                Spacer(modifier = Modifier.width(16.dp))
+
+                Button(
+                    onClick = {
+                        coroutineScope.launch {
+                            state.hide()
+                        }
+                    }, modifier = Modifier.weight(1f)
+                ) {
+                    Text(text = "İptal")
+                }
+            }
+        }
+    }
+
+
+    val view = LocalView.current
+    DisposableEffect(view) {
+        onDispose {
+            coroutineScope.launch {
+                state.hide()
+            }
+        }
+    }
+
+    // Bottom Sheet'ı göstermek için bir düğme veya tetikleyici eklemeyi unutmayın
+}
+
+
 @Composable
 @Preview(backgroundColor = 0xFFFFFFFF, showBackground = true)
 fun TaskPreview() {
+    //  TaskBottomSheet(onDismiss = { /*TODO*/ }, onSaveTask = { _, _ -> })
     TasksScreen()
 }
 

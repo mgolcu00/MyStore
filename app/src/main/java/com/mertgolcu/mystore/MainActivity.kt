@@ -10,7 +10,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.mertgolcu.mystore.tasker.screens.tasks.TaskAddModal
 import com.mertgolcu.mystore.tasker.screens.tasks.TasksScreen
+import com.mertgolcu.mystore.tasker.screens.tasks.TasksScreen2
 import com.mertgolcu.mystore.ui.theme.MyStoreTheme
 
 class MainActivity : ComponentActivity() {
@@ -23,7 +25,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    TasksScreen()
+                    TasksScreen2()
                 }
             }
         }
