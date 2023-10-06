@@ -16,6 +16,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.mertgolcu.mystore.tasker.screens.tasks.AddAndEditTaskModal
 import com.mertgolcu.mystore.tasker.screens.tasks.NewTasks
 import com.mertgolcu.mystore.tasker.screens.tasks.TaskAddModal
+import com.mertgolcu.mystore.tasker.screens.tasks.TaskScreen
 import com.mertgolcu.mystore.tasker.screens.tasks.TasksScreen
 import com.mertgolcu.mystore.tasker.screens.tasks.TasksScreen2
 import com.mertgolcu.mystore.ui.theme.MyStoreTheme
@@ -31,7 +32,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    NewTasks()
+                    TaskScreen()
                 }
             }
         }

@@ -63,18 +63,7 @@ fun NewTasks() {
     }
     AddAndEditTaskModal(
         onDone = {
-            // update
-            /* if (taskListState.value.find { task -> task.id == it.id } == null) {
-                 taskListState.value = taskListState.value + it
-             } else {
-                 taskListState.value = taskListState.value.map { task ->
-                     if (task.id == it.id) {
-                         it
-                     } else {
-                         task
-                     }
-                 }
-             }*/
+
 
             // add
             taskListState.value = taskListState.value + it

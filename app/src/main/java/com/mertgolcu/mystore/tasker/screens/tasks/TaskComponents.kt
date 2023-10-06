@@ -28,22 +28,27 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.MutableLiveData
 import com.mertgolcu.mystore.tasker.domain.model.Task
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -160,8 +165,9 @@ fun TaskList(
             )
             if (index == tasks.size - 1) {
                 AddTaskRow {
-                    onClickAdd.invoke()
+                    onClickAdd()
                 }
+                Spacer(modifier = Modifier.padding(16.dp))
             }
         }
     }
@@ -248,6 +254,9 @@ fun TaskDetailModal(
     onSave: (Task) -> Unit = {},
     onDelete: (Task?) -> Unit = {},
     onCancel: () -> Unit = {},
+    unsavedTextState: MutableState<String> = rememberSaveable {
+        mutableStateOf(task?.title ?: "")
+    }
 ) {
     val textState = remember { mutableStateOf(task?.title ?: "") }
     val focusRequester = remember { FocusRequester() }
@@ -261,10 +270,10 @@ fun TaskDetailModal(
                 .fillMaxSize()
                 .focusRequester(focusRequester)
                 .weight(0.9f),
-            value = textState.value,
+            value = unsavedTextState.value,
             textStyle = MaterialTheme.typography.headlineSmall,
             onValueChange = {
-                textState.value = it
+                unsavedTextState.value = it
             }
         )
         TaskDetailButtons(
@@ -274,16 +283,19 @@ fun TaskDetailModal(
             isEdit = task != null,
             onSave = {
                 if (task != null) {
-                    onSave(task.copy(title = textState.value))
+                    onSave(task.copy(title = unsavedTextState.value))
                 } else {
-                    onSave(Task.create(title = textState.value))
+                    onSave(Task.create(title = unsavedTextState.value))
                 }
+                unsavedTextState.value = ""
             },
             onDelete = {
                 onDelete(task)
+                unsavedTextState.value = ""
             },
             onCancel = {
                 onCancel()
+                unsavedTextState.value = ""
             }
         )
     }
@@ -302,28 +314,36 @@ fun TaskDetailModalPreview() {
 fun TaskDetailScaffold(
     modifier: Modifier = Modifier,
     scope: CoroutineScope = rememberCoroutineScope(),
-    keyboardController: SoftwareKeyboardController? = null,
-    initialState: SheetValue = SheetValue.Hidden,
+    keyboardController: SoftwareKeyboardController? = LocalSoftwareKeyboardController.current,
+    initialValue: SheetValue = SheetValue.Hidden,
     task: Task? = null,
     onSave: (Task) -> Unit = {},
     onDelete: (Task?) -> Unit = {},
-    child: @Composable () -> Unit = { },
+    child: @Composable (
+        BottomSheetScaffoldState,
+        show: (Task?) -> Unit,
+        hide: () -> Unit,
+    ) -> Unit = { _, _, _ -> },
 ) {
+    val currentTask = remember { mutableStateOf(task) }
+    val textState = remember { mutableStateOf(task?.title ?: "") }
     val bottomSheetScaffoldState = rememberBottomSheetScaffoldState(
         bottomSheetState = SheetState(
             skipPartiallyExpanded = false,
-            initialValue = initialState,
+            initialValue = initialValue,
             confirmValueChange = {
                 false
             }
         )
     )
-    val currentTask = remember { mutableStateOf(task) }
     BottomSheetScaffold(
         modifier = modifier,
+        sheetPeekHeight = 0.dp,
+        scaffoldState = bottomSheetScaffoldState,
         sheetContent = {
             TaskDetailModal(
                 task = currentTask.value,
+                unsavedTextState = textState,
                 onSave = {
                     currentTask.value = null
                     scope.launch {
@@ -350,7 +370,19 @@ fun TaskDetailScaffold(
             )
         }
     ) {
-        child()
+        child(bottomSheetScaffoldState, {
+            scope.launch {
+                currentTask.value = it
+                textState.value = it?.title ?: ""
+                bottomSheetScaffoldState.bottomSheetState.expand()
+                if (it == null)
+                    keyboardController?.show()
+            }
+        }, {
+            scope.launch {
+                bottomSheetScaffoldState.bottomSheetState.hide()
+            }
+        })
     }
 }
 
@@ -358,15 +390,5 @@ fun TaskDetailScaffold(
 @Composable
 @Preview(showBackground = true)
 fun TaskDetailScaffoldPreview() {
-    TaskDetailScaffold(
-        task = Task.create(title = "Send email to research team at Morning"),
-        initialState = SheetValue.Expanded
-    ){
-        TaskList(tasks = listOf(
-            Task.create(title = "Send email to research team at Morning"),
-            Task.create(title = "Send email to research team at Morning"),
-            Task.create(title = "Send email to research team at Morning"),
-        ))
-    }
 }
 
