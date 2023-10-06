@@ -100,14 +100,14 @@ fun NewTasks() {
                     onTaskChange(Task.create(title = ""))
                     bottomSheetState.bottomSheetState.expand()
                     focusRequester.requestFocus()
-                    // keyboardController?.show()
+                     keyboardController?.show()
                 }
             },
             onClick = {
                 scope.launch {
                     onTaskChange(it)
                     bottomSheetState.bottomSheetState.expand()
-                    focusRequester.requestFocus()
+                    //focusRequester.requestFocus()
                     // keyboardController?.show()
                 }
             },

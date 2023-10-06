@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.BottomSheetScaffoldState
 import androidx.compose.material3.Button
@@ -199,11 +198,9 @@ fun AddAndEditTaskModal(
                         currentTask.value?.let {
                             onDone(it.copy(title = textState.value))
                             textState.value = ""
-                        } ?: kotlin.run {
-                            onDone(Task.create(title = textState.value))
-                            textState.value = ""
                         }
                         scope.launch {
+                            keyboardController?.hide()
                             bottomSheetScaffoldState.bottomSheetState.hide()
                         }
                     },
@@ -213,12 +210,14 @@ fun AddAndEditTaskModal(
                             textState.value = ""
                         }
                         scope.launch {
+                            keyboardController?.hide()
                             bottomSheetScaffoldState.bottomSheetState.hide()
                         }
                     },
                     onDismiss = {
                         textState.value = ""
                         scope.launch {
+                            keyboardController?.hide()
                             bottomSheetScaffoldState.bottomSheetState.hide()
                         }
                     },

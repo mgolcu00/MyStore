@@ -7,8 +7,6 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -17,7 +15,6 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalView
@@ -48,7 +45,7 @@ fun TasksScreen2() {
     var taskTextState = remember { mutableStateOf(TextFieldValue("")) }
 
     TaskAddModal(taskTextState.value.text) { state, keyboardController, focusRequester ->
-        TaskList(modifier = Modifier,
+        TaskListOld(modifier = Modifier,
             tasks = taskListState.value,
             expandListener = {it,text->
                 showFloatingActionButton.value = !it
@@ -245,7 +242,7 @@ fun TasksScreen() {
 
 
         }
-        else TaskList(modifier = Modifier.padding(pv),
+        else TaskListOld(modifier = Modifier.padding(pv),
             tasks = taskListState.value,
             expandListener = {it,text->
                 showFloatingActionButton.value = !it
@@ -269,7 +266,7 @@ val tasks = listOf<Task>(
 )
 
 @Composable
-fun TaskList(
+fun TaskListOld(
     modifier: Modifier = Modifier,
     tasks: List<Task>,
     expandListener: (Boolean,String) -> Unit = {_,_->},
