@@ -1,5 +1,8 @@
 package com.mertgolcu.mystore.tasker.screens.tasks
 
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.mertgolcu.mystore.tasker.domain.model.Task
@@ -10,23 +13,31 @@ import com.mertgolcu.mystore.tasker.domain.model.Task
  */
 class TasksViewModel : ViewModel() {
 
-    private val _state = MutableLiveData(TasksState())
-    val state = _state
+    var newTaskList = taskCreator()
+    private val _state = mutableStateOf<TaskState>(TaskState.Loading)
+    val state: State<TaskState> = _state
 
-    fun processIntent(intent:TasksIntent){
-        when(intent){
+    init {
+        processIntent(TasksIntent.LoadTasks)
+    }
+    fun processIntent(intent: TasksIntent) {
+        when (intent) {
             TasksIntent.LoadTasks -> {
-
+                loadTasks()
             }
+
             is TasksIntent.CreateTask -> {
                 addTask(intent.task)
             }
+
             is TasksIntent.DeleteTask -> {
                 deleteTask(intent.task)
             }
+
             is TasksIntent.ToggleTask -> {
-                toggleTask(intent.task,intent.isCompleted)
+                toggleTask(intent.task, intent.isCompleted)
             }
+
             is TasksIntent.UpdateTask -> {
                 updateTask(intent.task)
             }
@@ -34,52 +45,52 @@ class TasksViewModel : ViewModel() {
     }
 
     private fun addTask(task: Task) {
-        val currentTasks = _state.value?.tasks ?: emptyList()
-        _state.value = _state.value?.copy(tasks = currentTasks + task)
+        // is task have run update
+        if (newTaskList.count { it.id == task.id } > 0) {
+            updateTask(task)
+            return
+        }
+        newTaskList = newTaskList + task
+        _state.value = TaskState.Success(newTaskList)
     }
 
     private fun deleteTask(task: Task) {
-        val currentTasks = _state.value?.tasks ?: emptyList()
-        _state.value = _state.value?.copy(tasks = currentTasks - task)
+        newTaskList = newTaskList.filter { it.id != task.id }
+        _state.value = TaskState.Success(newTaskList)
     }
 
     private fun updateTask(task: Task) {
-        val currentTasks = _state.value?.tasks ?: emptyList()
-        _state.value = _state.value?.copy(tasks = currentTasks.map { t ->
+        newTaskList = newTaskList.map { t ->
             if (t.id == task.id) {
                 task
             } else {
                 t
             }
-        })
+        }
+        _state.value = TaskState.Success(newTaskList)
     }
 
-    private fun toggleTask(task: Task,isCompleted: Boolean) {
-        val currentTasks = _state.value?.tasks ?: emptyList()
-        _state.value = _state.value?.copy(tasks = currentTasks.map { t ->
-            if (t.id == task.id) {
-                task.updateCompleted(isCompleted)
-            } else {
-                t
-            }
-        })
+    private fun toggleTask(task: Task, isCompleted: Boolean) {
+        val newTask = task.copy(isCompleted = isCompleted)
+        updateTask(newTask)
     }
 
     private fun loadTasks() {
-        _state.value = _state.value?.copy(tasks = taskCreator())
+        _state.value = TaskState.Success(newTaskList)
     }
+
 
 }
 
-data class TasksState(
-    val tasks: List<Task> = emptyList(),
-    val isLoading: Boolean = false,
-    val error: Throwable? = null
-)
+sealed class TaskState {
+    data object Loading : TaskState()
+    data class Error(val error: Throwable) : TaskState()
+    data class Success(val tasks: List<Task>) : TaskState()
+}
 
 sealed class TasksIntent {
     data object LoadTasks : TasksIntent()
-    data class ToggleTask(val task: Task,val isCompleted:Boolean) : TasksIntent()
+    data class ToggleTask(val task: Task, val isCompleted: Boolean) : TasksIntent()
     data class DeleteTask(val task: Task) : TasksIntent()
     data class UpdateTask(val task: Task) : TasksIntent()
     data class CreateTask(val task: Task) : TasksIntent()
