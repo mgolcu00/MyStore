@@ -10,6 +10,8 @@ plugins {
     alias(libs.plugins.androidLibrary) apply false
     // kotlinx serialization
     alias(libs.plugins.kotlinx.serialization)
+    // ksp
+    alias(libs.plugins.ksp) apply false
 
 
 }

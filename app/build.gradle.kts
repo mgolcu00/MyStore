@@ -9,6 +9,7 @@ plugins {
 
     // kotlinx serialization
     alias(libs.plugins.kotlinx.serialization)
+    alias(libs.plugins.ksp)
 }
 
 android {
@@ -78,6 +79,10 @@ dependencies {
     // dagger hilt
     implementation(libs.dagger.hilt)
     kapt(libs.hilt.compiler)
+
+    // compose destinations
+    implementation(libs.compose.destinations.core)
+    ksp(libs.compose.destinations.ksp)
 
 }
 

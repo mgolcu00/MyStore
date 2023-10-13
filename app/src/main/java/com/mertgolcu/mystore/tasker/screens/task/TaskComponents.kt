@@ -1,5 +1,6 @@
-package com.mertgolcu.mystore.tasker.screens.tasks
+package com.mertgolcu.mystore.tasker.screens.task
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,7 +13,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
-import androidx.compose.material.icons.twotone.Add
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.BottomSheetScaffoldState
 import androidx.compose.material3.Checkbox
@@ -33,7 +33,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -42,13 +41,9 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.MutableLiveData
 import com.mertgolcu.mystore.tasker.domain.model.Task
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -203,9 +198,8 @@ fun TaskDetailButtons(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(
-                horizontal = 32.dp,
-                vertical = 4.dp
+            .background(
+                color=MaterialTheme.colorScheme.background,
             ),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = CenterVertically,
@@ -222,9 +216,11 @@ fun TaskDetailButtons(
                 color = MaterialTheme.colorScheme.error,
             )
         }
-        TextButton(onClick = {
-            onCancel()
-        }) {
+        TextButton(
+            onClick = {
+                onCancel()
+            },
+        ) {
             Text(
                 text = "Cancel",
                 color = MaterialTheme.colorScheme.tertiary,
@@ -258,7 +254,6 @@ fun TaskDetailModal(
         mutableStateOf(task?.title ?: "")
     }
 ) {
-    val textState = remember { mutableStateOf(task?.title ?: "") }
     val focusRequester = remember { FocusRequester() }
     Column(
         modifier = modifier

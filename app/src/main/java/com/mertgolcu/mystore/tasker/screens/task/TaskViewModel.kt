@@ -1,9 +1,7 @@
-package com.mertgolcu.mystore.tasker.screens.tasks
+package com.mertgolcu.mystore.tasker.screens.task
 
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.mertgolcu.mystore.tasker.domain.model.Task
 
@@ -11,9 +9,9 @@ import com.mertgolcu.mystore.tasker.domain.model.Task
  * @author mertgolcu
  * @since 27.09.2023
  */
-class TasksViewModel : ViewModel() {
+class TaskViewModel : ViewModel() {
 
-    var newTaskList = taskCreator()
+    private var newTaskList = taskCreator()
     private val _state = mutableStateOf<TaskState>(TaskState.Loading)
     val state: State<TaskState> = _state
 

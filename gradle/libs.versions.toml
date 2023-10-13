@@ -21,6 +21,13 @@ ktor = "2.3.4"
 kotlinx-coroutines-core = "1.7.1"
 kotlinx-coroutines-android = "1.7.1"
 
+# compose destinations
+compose-destinations = "1.9.54"
+
+#ksp
+ksp = "1.9.10-1.0.13"
+
+
 
 
 
@@ -62,6 +69,10 @@ kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-cor
 kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "kotlinx-coroutines-android" }
 
 
+# compose destinations
+compose-destinations-core = { group = "io.github.raamcosta.compose-destinations", name = "core", version.ref = "compose-destinations" }
+compose-destinations-ksp = { group = "io.github.raamcosta.compose-destinations", name = "ksp", version.ref = "compose-destinations" }
+
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 kotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
@@ -74,4 +85,7 @@ androidLibrary = { id = "com.android.library", version.ref = "agp" }
 
 # kotlinx.serialization
 kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+
+# KSP
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 
