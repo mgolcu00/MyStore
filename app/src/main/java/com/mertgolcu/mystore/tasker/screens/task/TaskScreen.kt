@@ -18,7 +18,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mertgolcu.mystore.tasker.domain.model.Task
-import com.mertgolcu.mystore.tasker.screens.task.destinations.TaskDetailScreenDestination
+import com.mertgolcu.mystore.tasker.screens.destinations.TaskDetailScreenDestination
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -109,7 +109,8 @@ fun TaskScreen(modifier: Modifier = Modifier) {
 
 @RootNavGraph(start = true)
 @Destination(
-    route = "tasks"
+    route = "tasks",
+    style = TaskDetailTransitions::class,
 )
 @Composable
 fun TaskScreenWithoutBottomSheet(
@@ -131,6 +132,7 @@ fun TaskScreenWithoutBottomSheet(
 
         is TaskState.Success -> {
             Column(
+                modifier = modifier.clip(RoundedCornerShape(8.dp))
 //                modifier = modifier
 //                    .padding(16.dp)
 //                    .shadow(elevation = 1.dp, shape = RoundedCornerShape(16.dp))

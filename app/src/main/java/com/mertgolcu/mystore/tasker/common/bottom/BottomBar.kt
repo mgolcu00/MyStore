@@ -102,6 +102,14 @@ fun BottomBar(
                 label = bottomBarItem.label,
                 onClick = {
                     selectedItemState = index
+                    when(index){
+                        0->{
+                            navController?.navigate("tasks")
+                        }
+                        1->{
+                            navController?.navigate("home")
+                        }
+                    }
                     bottomBarItem.action()
                 }
             )
