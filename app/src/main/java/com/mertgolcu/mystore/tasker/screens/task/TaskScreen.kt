@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.mertgolcu.mystore.tasker.common.loading.shimmer
 import com.mertgolcu.mystore.tasker.domain.model.Task
 import com.mertgolcu.mystore.tasker.screens.destinations.TaskDetailScreenDestination
@@ -46,11 +47,12 @@ fun taskCreator(): List<Task> {
 
 val globalTaskList = taskCreator()
 
-val viewModel = TaskViewModel()
+//val viewModel = TaskViewModel()
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun TaskScreen(modifier: Modifier = Modifier) {
+fun TaskScreen(modifier: Modifier = Modifier,
+               viewModel: TaskViewModel= hiltViewModel()) {
     val state by viewModel.state
 
     when (state) {
@@ -121,6 +123,7 @@ fun TaskScreen(modifier: Modifier = Modifier) {
 fun TaskScreenWithoutBottomSheet(
     modifier: Modifier = Modifier,
     navigator: DestinationsNavigator? = null,
+    viewModel: TaskViewModel= hiltViewModel(),
 ) {
     val state by viewModel.state
     when (state) {

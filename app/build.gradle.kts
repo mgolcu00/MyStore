@@ -79,10 +79,17 @@ dependencies {
     // dagger hilt
     implementation(libs.dagger.hilt)
     kapt(libs.hilt.compiler)
+    implementation(libs.hilt.navigation.compose)
 
     // compose destinations
     implementation(libs.compose.destinations.core)
     ksp(libs.compose.destinations.ksp)
+
+    // room
+    implementation(libs.room.runtime)
+    annotationProcessor(libs.room.compiler)
+    ksp(libs.room.compiler)
+    implementation(libs.room.ktx)
 
 }
 

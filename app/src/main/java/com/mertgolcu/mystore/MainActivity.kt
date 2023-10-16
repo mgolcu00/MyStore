@@ -59,7 +59,9 @@ import com.ramcosta.composedestinations.animations.defaults.NestedNavGraphDefaul
 import com.ramcosta.composedestinations.animations.rememberAnimatedNavHostEngine
 import com.ramcosta.composedestinations.navigation.navigate
 import com.ramcosta.composedestinations.utils.currentDestinationAsState
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {

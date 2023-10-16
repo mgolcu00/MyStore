@@ -13,6 +13,7 @@ org-jetbrains-kotlin-jvm = "1.9.10"
 # Dagger Hilt di with Javax Inject
 dagger-hilt = "2.48"
 javax-inject = "1"
+hilt-navigation-compose = "1.0.0"
 
 # ktor core client
 ktor = "2.3.4"
@@ -27,6 +28,8 @@ compose-destinations = "1.9.54"
 #ksp
 ksp = "1.9.10-1.0.13"
 
+#room
+room = "2.5.2"
 
 
 
@@ -51,6 +54,7 @@ material3 = { group = "androidx.compose.material3", name = "material3" }
 dagger-hilt = { group = "com.google.dagger", name = "hilt-android", version.ref = "dagger-hilt" }
 javax-inject = { group = "javax.inject", name = "javax.inject", version.ref = "javax-inject" }
 hilt-compiler = { group = "com.google.dagger", name = "hilt-compiler", version.ref = "dagger-hilt" }
+hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hilt-navigation-compose" }
 
 # ktor client
 ktor-client-core = { group = "io.ktor", name = "ktor-client-core", version.ref = "ktor" }
@@ -72,6 +76,11 @@ kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-
 # compose destinations
 compose-destinations-core = { group = "io.github.raamcosta.compose-destinations", name = "animations-core", version.ref = "compose-destinations" }
 compose-destinations-ksp = { group = "io.github.raamcosta.compose-destinations", name = "ksp", version.ref = "compose-destinations" }
+
+#room
+room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
+room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
+room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
