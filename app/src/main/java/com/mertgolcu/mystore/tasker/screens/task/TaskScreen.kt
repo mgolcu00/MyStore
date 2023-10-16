@@ -2,7 +2,11 @@ package com.mertgolcu.mystore.tasker.screens.task
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -14,11 +18,12 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.mertgolcu.mystore.tasker.common.loading.shimmer
 import com.mertgolcu.mystore.tasker.domain.model.Task
 import com.mertgolcu.mystore.tasker.screens.destinations.TaskDetailScreenDestination
+import com.mertgolcu.mystore.tasker.screens.task.detail.TaskDetailTransitions
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -115,7 +120,7 @@ fun TaskScreen(modifier: Modifier = Modifier) {
 @Composable
 fun TaskScreenWithoutBottomSheet(
     modifier: Modifier = Modifier,
-    navigator: DestinationsNavigator? = null
+    navigator: DestinationsNavigator? = null,
 ) {
     val state by viewModel.state
     when (state) {
@@ -124,45 +129,80 @@ fun TaskScreenWithoutBottomSheet(
         }
 
         TaskState.Loading -> {
-            Text(text = "Loading")
+            Column(
+                modifier = modifier.clip(RoundedCornerShape(8.dp))
+            ) {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(
+                            color = MaterialTheme.colorScheme.background,
+                        )
+                ) {
+                    items(20) {
+                        if (it % 2 == 0) {
+                            Text(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(8.dp)
+                                    .shimmer(
+                                        shape = RoundedCornerShape(8.dp)
+                                    ), text = ""
+                            )
+
+                        } else {
+                            Text(
+                                modifier = Modifier
+                                    .fillMaxWidth(0.7f)
+                                    .padding(8.dp)
+                                    .shimmer(
+                                        shape = RoundedCornerShape(8.dp)
+                                    ), text = ""
+                            )
+
+                        }
+                    }
+                }
+            }
             LaunchedEffect(Unit) {
                 viewModel.processIntent(TasksIntent.LoadTasks)
             }
         }
 
         is TaskState.Success -> {
-            Column(
-                modifier = modifier.clip(RoundedCornerShape(8.dp))
-//                modifier = modifier
-//                    .padding(16.dp)
-//                    .shadow(elevation = 1.dp, shape = RoundedCornerShape(16.dp))
-//                    .clip(RoundedCornerShape(16.dp))
-//                    .background(
-//                        color = MaterialTheme.colorScheme.background,
-//                    )
-
-            ) {
-                TaskList(
-                    modifier = Modifier
-                        .background(
-                            color = MaterialTheme.colorScheme.background,
-                        ),
-                    tasks = globalTaskList,
-                    onTaskClick = { task ->
-                        // open detail
-                    },
-                    onTaskCheckedChange = { task, isChecked ->
-                        // update task
-                    },
-                    onClickAdd = {
-                        // open detail
-                        navigator?.navigate(TaskDetailScreenDestination)
-                    }
-                )
-            }
+            TaskList(state = state, modifier = modifier, navigator = navigator)
         }
     }
 
+}
+
+@Composable
+fun TaskList(
+    state: TaskState,
+    modifier: Modifier = Modifier,
+    navigator: DestinationsNavigator? = null,
+) {
+    Column(
+        modifier = modifier.clip(RoundedCornerShape(8.dp))
+    ) {
+        TaskList(
+            modifier = Modifier
+                .background(
+                    color = MaterialTheme.colorScheme.background,
+                ),
+            tasks = globalTaskList,
+            onTaskClick = { task ->
+                // open detail
+            },
+            onTaskCheckedChange = { task, isChecked ->
+                // update task
+            },
+            onClickAdd = {
+                // open detail
+                navigator?.navigate(TaskDetailScreenDestination)
+            }
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

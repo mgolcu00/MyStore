@@ -3,7 +3,10 @@ package com.mertgolcu.mystore.tasker.screens.task
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.mertgolcu.mystore.tasker.domain.model.Task
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 /**
  * @author mertgolcu
@@ -74,7 +77,11 @@ class TaskViewModel : ViewModel() {
     }
 
     private fun loadTasks() {
-        _state.value = TaskState.Success(newTaskList)
+        viewModelScope.launch {
+            delay(2000)
+            _state.value = TaskState.Success(newTaskList)
+        }
+
     }
 
 
@@ -85,6 +92,7 @@ sealed class TaskState {
     data class Error(val error: Throwable) : TaskState()
     data class Success(val tasks: List<Task>) : TaskState()
 }
+
 
 sealed class TasksIntent {
     data object LoadTasks : TasksIntent()
