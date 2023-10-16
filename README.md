@@ -2,6 +2,7 @@
 
 ## The UI Structure
 
+```
 features
 |
 |__ task 
@@ -94,5 +95,5 @@ utils
 |__ ...
 |
 App.kt
-
+```
 
