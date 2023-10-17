@@ -4,23 +4,30 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.mertgolcu.mystore.tasker.domain.model.Task
+import com.mertgolcu.mystore.data.local.entities.Task
+import com.mertgolcu.mystore.data.repository.TaskRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 /**
  * @author mertgolcu
  * @since 27.09.2023
  */
-class TaskViewModel : ViewModel() {
+@HiltViewModel
+class TaskViewModel @Inject constructor(
+    private val taskRepository: TaskRepository
+) : ViewModel() {
 
-    private var newTaskList = taskCreator()
     private val _state = mutableStateOf<TaskState>(TaskState.Loading)
     val state: State<TaskState> = _state
 
     init {
         processIntent(TasksIntent.LoadTasks)
     }
+
     fun processIntent(intent: TasksIntent) {
         when (intent) {
             TasksIntent.LoadTasks -> {
@@ -47,39 +54,36 @@ class TaskViewModel : ViewModel() {
 
     private fun addTask(task: Task) {
         // is task have run update
-        if (newTaskList.count { it.id == task.id } > 0) {
-            updateTask(task)
-            return
+        viewModelScope.launch {
+            taskRepository.insert(task)
         }
-        newTaskList = newTaskList + task
-        _state.value = TaskState.Success(newTaskList)
     }
 
     private fun deleteTask(task: Task) {
-        newTaskList = newTaskList.filter { it.id != task.id }
-        _state.value = TaskState.Success(newTaskList)
+        viewModelScope.launch {
+            taskRepository.delete(task)
+        }
     }
 
     private fun updateTask(task: Task) {
-        newTaskList = newTaskList.map { t ->
-            if (t.id == task.id) {
-                task
-            } else {
-                t
-            }
+        viewModelScope.launch {
+            taskRepository.update(task)
         }
-        _state.value = TaskState.Success(newTaskList)
     }
 
     private fun toggleTask(task: Task, isCompleted: Boolean) {
-        val newTask = task.copy(isCompleted = isCompleted)
-        updateTask(newTask)
+        viewModelScope.launch {
+            taskRepository.update(task.copy(isCompleted = isCompleted))
+        }
     }
 
     private fun loadTasks() {
         viewModelScope.launch {
-            delay(2000)
-            _state.value = TaskState.Success(newTaskList)
+            taskRepository.getAllTasks().catch {
+                _state.value = TaskState.Error(it)
+            }.collect {
+                _state.value = TaskState.Success(it)
+            }
         }
 
     }

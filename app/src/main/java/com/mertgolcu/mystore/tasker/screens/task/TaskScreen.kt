@@ -21,8 +21,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.mertgolcu.mystore.data.local.entities.Task
 import com.mertgolcu.mystore.tasker.common.loading.shimmer
-import com.mertgolcu.mystore.tasker.domain.model.Task
 import com.mertgolcu.mystore.tasker.screens.destinations.TaskDetailScreenDestination
 import com.mertgolcu.mystore.tasker.screens.task.detail.TaskDetailTransitions
 import com.ramcosta.composedestinations.annotation.Destination
@@ -40,7 +40,13 @@ fun taskCreator(): List<Task> {
     var title = "Test"
     val list = arrayListOf<Task>()
     for (i in 0..15) {
-        list.add(Task.create(title = "$title $i", id = i))
+        list.add(
+            Task(
+                id = i,
+                title = "Send email to research team at Morning",
+                isCompleted = false
+            )
+        )
     }
     return list
 }
@@ -48,72 +54,6 @@ fun taskCreator(): List<Task> {
 val globalTaskList = taskCreator()
 
 //val viewModel = TaskViewModel()
-
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
-@Composable
-fun TaskScreen(modifier: Modifier = Modifier,
-               viewModel: TaskViewModel= hiltViewModel()) {
-    val state by viewModel.state
-
-    when (state) {
-        is TaskState.Error -> {
-            Text(text = "Error")
-        }
-
-        TaskState.Loading -> {
-            viewModel.processIntent(TasksIntent.LoadTasks)
-        }
-
-        is TaskState.Success -> {
-            //  val taskListState = viewModel.state.value?.tasks ?: listOf()
-            val scope = rememberCoroutineScope()
-            Column(
-                modifier = modifier
-                    .padding(16.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(
-                        color = MaterialTheme.colorScheme.background,
-                    )
-            ) {
-                TaskDetailScaffold(
-                    modifier = Modifier,
-                    scope = scope,
-                    onSave = { task ->
-                        // save task
-                        viewModel.processIntent(TasksIntent.CreateTask(task))
-                    },
-                    onDelete = { task ->
-                        // delete task
-                        task?.let {
-                            viewModel.processIntent(TasksIntent.DeleteTask(task))
-                        }
-                    },
-                ) { _, show, _ ->
-                    TaskList(
-                        modifier = Modifier
-                            .background(
-                                color = MaterialTheme.colorScheme.background,
-                            ),
-                        tasks = (state as TaskState.Success).tasks,
-                        onTaskClick = { task ->
-                            // open detail
-                            show(task)
-                        },
-                        onTaskCheckedChange = { task, isChecked ->
-                            // update task
-                            viewModel.processIntent(TasksIntent.ToggleTask(task, isChecked))
-                        },
-                        onClickAdd = {
-                            // open detail
-                            show(null)
-                        }
-                    )
-                }
-            }
-        }
-    }
-}
-
 @RootNavGraph(start = true)
 @Destination(
     route = "tasks",
@@ -123,7 +63,7 @@ fun TaskScreen(modifier: Modifier = Modifier,
 fun TaskScreenWithoutBottomSheet(
     modifier: Modifier = Modifier,
     navigator: DestinationsNavigator? = null,
-    viewModel: TaskViewModel= hiltViewModel(),
+    viewModel: TaskViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state
     when (state) {
@@ -173,7 +113,35 @@ fun TaskScreenWithoutBottomSheet(
         }
 
         is TaskState.Success -> {
-            TaskList(state = state, modifier = modifier, navigator = navigator)
+            Column(
+                modifier = modifier.clip(RoundedCornerShape(8.dp))
+            ) {
+                TaskList(
+                    modifier = Modifier
+                        .background(
+                            color = MaterialTheme.colorScheme.background,
+                        ),
+                    tasks = (state as TaskState.Success).tasks,
+                    onTaskClick = { task ->
+                        // open detail
+                        navigator?.navigate(TaskDetailScreenDestination(taskId = task.id))
+                    },
+                    onTaskCheckedChange = { task, isChecked ->
+                        // update task
+                        viewModel.processIntent(
+                            TasksIntent.ToggleTask(
+                                task = task,
+                                isCompleted = isChecked
+                            )
+                        )
+
+                    },
+                    onClickAdd = {
+                        // open detail
+                        navigator?.navigate(TaskDetailScreenDestination())
+                    }
+                )
+            }
         }
     }
 
@@ -185,27 +153,7 @@ fun TaskList(
     modifier: Modifier = Modifier,
     navigator: DestinationsNavigator? = null,
 ) {
-    Column(
-        modifier = modifier.clip(RoundedCornerShape(8.dp))
-    ) {
-        TaskList(
-            modifier = Modifier
-                .background(
-                    color = MaterialTheme.colorScheme.background,
-                ),
-            tasks = globalTaskList,
-            onTaskClick = { task ->
-                // open detail
-            },
-            onTaskCheckedChange = { task, isChecked ->
-                // update task
-            },
-            onClickAdd = {
-                // open detail
-                navigator?.navigate(TaskDetailScreenDestination)
-            }
-        )
-    }
+
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

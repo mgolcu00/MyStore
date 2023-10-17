@@ -6,6 +6,7 @@ import java.util.Date
  * @author mertgolcu
  * @since 27.09.2023
  */
+@Deprecated("This class is deprecated")
 data class Task(
     val id: Int,
     val title: String,

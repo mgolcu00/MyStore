@@ -200,7 +200,7 @@ fun MainFrame(
             }, onClick = {
                 when (currentDestination.value) {
                     is TaskScreenWithoutBottomSheetDestination -> {
-                        navController.navigate(TaskDetailScreenDestination)
+                        navController.navigate(TaskDetailScreenDestination())
                     }
 
                     is TaskDetailScreenDestination -> {

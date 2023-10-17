@@ -44,7 +44,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.mertgolcu.mystore.tasker.domain.model.Task
+import com.mertgolcu.mystore.data.local.entities.Task
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -93,7 +93,13 @@ fun TaskRow(
 @Composable
 @Preview(showBackground = true)
 fun TaskRowPreview() {
-    TaskRow(task = Task.create(title = "Send email to research team at Morning"))
+    TaskRow(
+        task = Task(
+            id = 0,
+            title = "Send email to research team at Morning",
+            isCompleted = false
+        )
+    )
 }
 
 @Composable
@@ -147,11 +153,15 @@ fun TaskList(
 ) {
     LazyColumn(modifier = modifier) {
         items(tasks.size) { index ->
-            TaskRow(task = tasks[index], onClick = {
-                onTaskClick.invoke(it)
-            }, onCheckedChange = { task, isChecked ->
-                onTaskCheckedChange.invoke(task, isChecked)
-            })
+            TaskRow(
+                task = tasks[index],
+                onClick = {
+                    onTaskClick.invoke(it)
+                },
+                onCheckedChange = { task, isChecked ->
+                    onTaskCheckedChange.invoke(task, isChecked)
+                }
+            )
             Divider(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -173,16 +183,11 @@ fun TaskList(
 fun TaskListPreview() {
     TaskList(
         tasks = listOf(
-            Task.create(title = "Send email to research team at Morning"),
-            Task.create(title = "Drink Water"),
-            Task.create(title = "Drink Water"),
-            Task.create(title = "Drink Water"),
-            Task.create(title = "Drink Water"),
-            Task.create(title = "Drink Water"),
-            Task.create(title = "Drink Water"),
-            Task.create(title = "Drink Water"),
-            Task.create(title = "Drink Water"),
-            Task.create(title = "Drink Water"),
+            Task(
+                id = 1,
+                title = "Send email to research team at Morning",
+                isCompleted = false,
+            ),
         )
     )
 }
@@ -199,7 +204,7 @@ fun TaskDetailButtons(
         modifier = modifier
             .fillMaxWidth()
             .background(
-                color=MaterialTheme.colorScheme.background,
+                color = MaterialTheme.colorScheme.background,
             ),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = CenterVertically,
@@ -280,7 +285,13 @@ fun TaskDetailModal(
                 if (task != null) {
                     onSave(task.copy(title = unsavedTextState.value))
                 } else {
-                    onSave(Task.create(title = unsavedTextState.value))
+                    onSave(
+                        Task(
+                            id = 0,
+                            title = "Send email to research team at Morning",
+                            isCompleted = false
+                        )
+                    )
                 }
                 unsavedTextState.value = ""
             },
@@ -300,7 +311,11 @@ fun TaskDetailModal(
 @Preview(showBackground = true)
 fun TaskDetailModalPreview() {
     TaskDetailModal(
-        task = Task.create(title = "Send email to research team at Morning")
+        task = Task(
+            id = 0,
+            title = "Send email to research team at Morning",
+            isCompleted = false
+        )
     )
 }
 
